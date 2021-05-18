@@ -1,6 +1,9 @@
 <DOCTYPE html>
 <html>
   <style>
+    body{
+      font-family:monospace;
+    }
     canvas{
       position:absolute;
       left:0;
@@ -10,28 +13,35 @@
     a:link {
       color: #666666;
       background-color: transparent;
-      text-decoration: underline;
+      text-decoration: none;
     }
     a:visited {
       color: #666666;
       background-color: transparent;
-      text-decoration: underline;
+      text-decoration: none;
     }
     a:hover {
       color: #FFFFFF;
       background-color: transparent;
-      text-decoration: underline;
+      text-decoration: none;
     }
     a:active {
       color: #FFFFFF;
       background-color: transparent;
-      text-decoration: underline;
+      text-decoration: none;
     }
   </style>
   <body style=background-color:black;>
     <p style="color:#FFFFFF;font-size:512%;text-align:center;">
-      Samuel B Reid
+      Samuel B. Reid
     </p>
+    <!--
+    <p style="font-size:256%;text-align:center;">
+      <a href="https://en.wikipedia.org/wiki/Rocket_sled_launch">
+        About
+      </a>
+    </p>
+    -->
     <p style="font-size:256%;text-align:center;">
       <a href="resume.pdf">
         Résumé
@@ -42,10 +52,7 @@
         OEIS Contributions
       </a>
     </p>
-    <canvas width="256" height="256">
-      <p>
-        HELLO
-      </p>
+    <canvas>
     </canvas>
     <script src="canvas.js">
     </script>
