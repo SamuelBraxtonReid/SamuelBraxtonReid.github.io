@@ -32,7 +32,8 @@ function Circle(x, y, dx, dy, radius) {
 		if (this.brightness > 15) {
 			context.beginPath();
 			context.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
-			context.fillStyle = 'rgb(0, ' + this.brightness + ', ' + this.brightness + ')';
+			//context.fillStyle = 'rgb(0, ' + this.brightness + ', ' + this.brightness + ')';
+			context.fillStyle = 'rgb(0, ' + this.brightness + ', 0)';
 			context.fill();
 		}
 	}
@@ -59,11 +60,11 @@ function Circle(x, y, dx, dy, radius) {
 
 var circles = [];
 
-var circleCount = 5000;
+var circleCount = 128;
 
 for (var i = 0; i < circleCount; i++) {
 
-	var radius = Math.random() + 2;
+	var radius = (Math.random() + 2) * 3;
 	var x = Math.random() * (innerWidth - 2 * radius) + radius;
 	var y = Math.random() * (innerHeight - 2 * radius) + radius;
 	var dx = (Math.random() - 0.5) * 2;
@@ -72,7 +73,13 @@ for (var i = 0; i < circleCount; i++) {
 
 }
 
+let frame_count = 0;
+
 function animate() {
+
+        if (frame_count % 60 == 0) {
+          console.log(frame_count);
+        }
 
 	context.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -82,6 +89,8 @@ function animate() {
 	}
 
 	requestAnimationFrame(animate);
+
+        frame_count++;
 
 }
 
