@@ -62,9 +62,19 @@ var circles = [];
 
 var circleCount = 128;
 
+var radii = []
+
 for (var i = 0; i < circleCount; i++) {
 
-	var radius = (Math.random() + 2) * 3;
+        radii.push((Math.random() + 0.5) * 6)
+
+}
+radii.sort();
+console.log(radii);
+
+for (var i = 0; i < circleCount; i++) {
+
+        var radius = radii[i];
 	var x = Math.random() * (innerWidth - 2 * radius) + radius;
 	var y = Math.random() * (innerHeight - 2 * radius) + radius;
 	var dx = (Math.random() - 0.5) * 2;
