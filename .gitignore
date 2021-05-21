@@ -2,6 +2,9 @@
 !*.html
 !*.css
 !*.js
+!*.png
+!main.c.txt
+!instructions.txt
 !resume.pdf
 !.nojekyll
 !.gitignore

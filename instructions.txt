@@ -1,0 +1,68 @@
+The C code can be compiled in the usual way.
+Run the resultant executable with a text file as input like so: ./a.out input.txt
+Upon completion, the raytracer will produce a file called "out.ppm" which will contain the output image.
+I'm not sure that ppm files can be viewed by default in Windows, but there are online ppm viewers and free apps available if you run into this problem.
+
+Here is the input for the first image:
+
+I 3200 3200
+P 0.000625
+M 10000
+L 0 0 0 1 1 1
+
+S -6 0 -6 3 1 1 1
+S 0 0 -6 3 1 1 1
+S 6 0 -6 3 1 1 1
+S 0 10.392304845 -6 3 1 1 1
+S 0 -10.392304845 -6 3 1 1 1
+S -9 5.1961524227 -6 3 1 1 1
+S 9 5.1961524227 -6 3 1 1 1
+S -3 5.1961524227 -6 3 1 1 1
+S 3 5.1961524227 -6 3 1 1 1
+S 9 -5.1961524227 -6 3 1 1 1
+S -9 -5.1961524227 -6 3 1 1 1
+S 3 -5.1961524227 -6 3 1 1 1
+S -3 -5.1961524227 -6 3 1 1 1
+
+The line starting with I specifies the dimensions of the output image (3200 by 3200 pixels).
+The line starting with P specifies the fov in a roundabout way. Probably just don't mess with it.
+The line starting with M specifies the maximum number of times the ray should bounce before computation stops.
+The line starting with L specifies the position (x y z) and color (r g b) of the light (in that order).
+The lines starting with S define various spheres with positions (x y z) radis (r) and color (r g b) in that order.
+
+Here is the input for the second image:
+
+I 1600 1600
+P 0.00125
+M 1000
+L 3 0 0 1 1 1
+
+S 0 0 -7 3 1 1 0.3
+S 6 0 -7 2 0.8 0.8 1
+S 3 3 -6 1 1.0 0.5 0.2
+S -5 0 -7 1 1.0 1.0 1.0
+
+B -6 1.5 -6 -4 1.75 -8 1.0 1.0 1.0
+B -6 -1.75 -6 -4 -1.5 -8 1.0 1.0 1.0
+B -2 -3.5 -8 -1 -3 -7 1.0 0.0 0.0
+B -1 -3.5 -8  0 -3 -7 0.0 1.0 0.0
+B -0 -3.5 -8  1 -3 -7 0.0 0.0 1.0
+B  1 -3.5 -8  2 -3 -7 1.0 1.0 1.0
+B -2 -3.5 -7 -1 -3 -6 1.0 1.0 0.0
+B -1 -3.5 -7  0 -3 -6 0.0 1.0 1.0
+B -0 -3.5 -7  1 -3 -6 1.0 0.0 1.0
+B  1 -3.5 -7  2 -3 -6 0.0 0.0 0.0
+B -2 -3.5 -6 -1 -3 -5 1.0 0.0 0.0
+B -1 -3.5 -6  0 -3 -5 0.0 1.0 0.0
+B -0 -3.5 -6  1 -3 -5 0.0 0.0 1.0
+B  1 -3.5 -6  2 -3 -5 1.0 1.0 1.0
+B -2 -3.5 -5 -1 -3 -4 1.0 1.0 0.0
+B -1 -3.5 -5  0 -3 -4 0.0 1.0 1.0
+B -0 -3.5 -5  1 -3 -4 1.0 0.0 1.0
+B  1 -3.5 -5  2 -3 -4 1.0 0.5 0.0
+
+The only new thing that needs to be explained is the lines starting with B. These specify axis alligned boxes.
+The values are (x1 y1 z1), (x2 y2 z2), and (r g b).
+
+I did not invent this input format, but the code is entirely my own.
+

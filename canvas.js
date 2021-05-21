@@ -60,13 +60,15 @@ function animate() {
     circles[i].dy *= -1;
     }
     var distance = Math.max((Math.pow(circles[i].x - mouseX, 2) + Math.pow(circles[i].y - mouseY, 2)) / 1000, 1);
-    if (distance < 600) {
+    if (distance < 51) {
       circles[i].brightness = Math.floor(Math.max(circles[i].brightness, 255 / distance));
     }
     if (circles[i].brightness > 5) {
       context.beginPath();
       context.arc(circles[i].x, circles[i].y, circles[i].radius, 0, Math.PI * 2, false);
-      //context.fillStyle = 'rgb(0, ' + circles[i].brightness + ', 0)';
+      context.fillStyle = 'rgb(0, ' + circles[i].brightness + ', 0)';
+      //context.fillStyle = 'rgb(0, ' + 255 + ', 0)';
+      /*
       let r = circles[i].brightness * 3;
       let g = r - 255;
       let b = r - 510;
@@ -74,7 +76,9 @@ function animate() {
       g = Math.max(Math.min(g, 255), 0);
       b = Math.max(b, 0);
       context.fillStyle = 'rgb(' + r + ', ' + g + ', ' + b + ')';
+      */
       context.fill();
+      
     }
     if (circles[i].brightness > 0) {
       circles[i].brightness = Math.floor(circles[i].brightness * .97);

@@ -1,0 +1,204 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <math.h>
+
+struct box {
+  double min_x, min_y, min_z;
+  double max_x, max_y, max_z;
+  double r, g, b;
+};
+
+struct sphere {
+  double x, y, z;
+  double rad;
+  double r, g, b; 
+};
+
+struct light {
+  double x, y, z;
+  double r, g, b;
+};
+
+int main(int argc, char **argv)
+{
+  int32_t b_count = 0;
+  int32_t s_count = 0;
+  FILE *scene = fopen(argv[1], "r");
+  char line[1024];
+  while (fgets(line, sizeof(line), scene)) {
+    b_count += (line[0] == 'B');
+    s_count += (line[0] == 'S');
+  }
+  struct box *boxes = (struct box *)calloc(b_count, sizeof(*boxes));
+  struct sphere *spheres = (struct sphere *)calloc(s_count, sizeof(*spheres));
+  rewind(scene);
+  int32_t width, height;
+  double pixel_size; 
+  int32_t bounces;
+  int32_t b_index = 0;
+  int32_t s_index = 0;
+  struct light l = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+  while (fgets(line, sizeof(line), scene)) {
+    if (line[0] == 'I') {
+      sscanf(line, "I %d %d\n", &width, &height);
+    } else if (line[0] == 'P') {
+      sscanf(line, "P %lf\n", &pixel_size);
+    } else if (line[0] == 'M') {
+      sscanf(line, "M %d\n", &bounces);
+    } else if (line[0] == 'B') {
+      struct box *b = boxes + b_index;
+      sscanf(line, "B %lf %lf %lf %lf %lf %lf %lf %lf %lf\n", &(b->min_x), &(b->min_y), &(b->min_z), &(b->max_x), &(b->max_y), &(b->max_z), &(b->r), &(b->g), &(b->b));
+      b_index++;
+    } else if (line[0] == 'S') {
+      struct sphere *s = spheres + s_index;
+      sscanf(line, "S %lf %lf %lf %lf %lf %lf %lf\n", &(s->x), &(s->y), &(s->z), &(s->rad), &(s->r), &(s->g), &(s->b));
+      s_index++;
+    } else if (line[0] == 'L') {
+      sscanf(line, "L %lf %lf %lf %lf %lf %lf\n", &(l.x), &(l.y), &(l.z), &(l.r), &(l.g), &(l.b));
+    }
+  }
+  FILE *ppm = fopen("out.ppm", "wb");
+  fprintf(ppm, "P6\n%d %d\n255\n", width, height);
+  double p_y = (height - (height + 1) / 2.0f) * pixel_size;
+  for (int32_t y = 0; y < height; y++) {
+    double p_x = ((width + 1) / 2.0f - width) * pixel_size;
+    for (int32_t x = 0; x < width; x++) {
+      struct sphere *last_sphere = NULL;
+      struct box *last_box = NULL;
+      double m = sqrt(p_x * p_x + p_y * p_y + 1.0f);
+      double v[3] = {p_x / m, p_y / m, -1.0f / m};
+      double p[3] = {0.0f, 0.0f, 0.0f}; 
+      double col[3] = {1.0f, 1.0f, 1.0f};
+      int32_t bounce = 0;
+      for (bounce = 0; bounce < bounces; bounce++) {
+        struct sphere *sc = NULL;
+        double s_d = 0.0f;
+        double s_pos[3] = {0.0f, 0.0f, 0.0f};
+        double s_vec[3] = {0.0f, 0.0f, 0.0f};
+        for (int32_t i = 0; i < s_count; i++) {
+          struct sphere *s = spheres + i;
+          if (s == last_sphere) {
+            continue;
+          }
+          double a[3] = {p[0] - s->x, p[1] - s->y, p[2] - s->z};
+          double dist = -(v[0] * a[0] + v[1] * a[1] + v[2] * a[2]);
+          if (dist <= 0) {
+            continue;
+          }
+          double d = dist * dist - (a[0] * a[0] + a[1] * a[1] + a[2] * a[2]) + s->rad * s->rad;
+          if (d > 0) {
+            dist -= sqrt(d);
+            if (!sc || dist < s_d) {
+              sc = s;
+              s_d = dist;
+              s_pos[0] = p[0] + v[0] * dist;
+              s_pos[1] = p[1] + v[1] * dist;
+              s_pos[2] = p[2] + v[2] * dist;
+              double n[3] = {(s_pos[0] - s->x) / s->rad, (s_pos[1] - s->y) / s->rad, (s_pos[2] - s->z) / s->rad};
+              double val = v[0] * n[0] + v[1] * n[1] + v[2] * n[2];
+              s_vec[0] = v[0] - 2 * val * n[0];
+              s_vec[1] = v[1] - 2 * val * n[1];
+              s_vec[2] = v[2] - 2 * val * n[2];
+            }
+          }
+        }
+        struct box *bc = NULL;
+        double b_d = 0.0f;
+        double b_pos[3];
+        double b_vec[3];
+        for (int32_t i = 0; i < b_count; i++) {
+          struct box *b = boxes + i;
+          if (b == last_box) {
+            continue;
+          }
+          double t1[3] = {(b->min_x - p[0]) / v[0], (b->min_y - p[1]) / v[1], (b->min_z - p[2]) / v[2]};
+          double t2[3] = {(b->max_x - p[0]) / v[0], (b->max_y - p[1]) / v[1], (b->max_z - p[2]) / v[2]};
+          int32_t valid = 1;
+          for (int32_t i = 0; i < 3; i++) {
+            if (t1[i] <= 0 && t2[i] <= 0) {
+              valid = 0;
+              break;
+            }
+            if (t2[i] < t1[i]) {
+              double t = t1[i];
+              t1[i] = t2[i];
+              t2[i] = t;
+            }
+          }
+          if (!valid) {
+            continue;
+          }
+          double t1_max = t1[0];
+          int32_t t1_index = 0;
+          double t2_min = t2[0];
+          for (int32_t j = 1; j < 3; j++) {
+            if (t1[j] > t1_max) {
+              t1_max = t1[j];
+              t1_index = j;
+            }
+            if (t2[j] < t2_min) {
+              t2_min = t2[j];
+            }
+          }
+          if (t1_max <= 0) {
+            continue;
+          } 
+          if (t1_max < t2_min) {
+            if (!bc || t1_max < b_d) {
+              bc = b;
+              b_d = t1_max;
+              b_pos[0] = p[0] + v[0] * t1_max;
+              b_pos[1] = p[1] + v[1] * t1_max;
+              b_pos[2] = p[2] + v[2] * t1_max;
+              b_vec[0] = v[0];
+              b_vec[1] = v[1];
+              b_vec[2] = v[2];
+              b_vec[t1_index] *= -1;
+            }
+          }
+        }
+        if (sc || bc) {
+          s_d = sc ? s_d : b_d + 1.0f;
+          b_d = bc ? b_d : s_d + 1.0f;
+          if (s_d <= b_d) {
+            last_sphere = sc;
+            last_box = NULL;
+            col[0] *= sc->r;
+            col[1] *= sc->g;
+            col[2] *= sc->b;
+            memcpy(p, s_pos, sizeof(s_pos));
+            memcpy(v, s_vec, sizeof(s_vec));
+          } else {
+            last_box = bc; 
+            last_sphere = NULL;
+            col[0] *= bc->r;
+            col[1] *= bc->g;
+            col[2] *= bc->b;
+            memcpy(p, b_pos, sizeof(b_pos));
+            memcpy(v, b_vec, sizeof(b_vec));
+          }
+        } else {
+          break;
+        }
+      }
+      double lv[3] = {l.x - p[0], l.y - p[1], l.z - p[2]};
+      double lm = sqrt(lv[0] * lv[0] + lv[1] * lv[1] + lv[2] * lv[2]);
+      double dt = (((lv[0] * v[0] + lv[1] * v[1] + lv[2] * v[2]) / lm) + 1.0f) / 2.0f;
+      col[0] *= dt; 
+      col[1] *= dt; 
+      col[2] *= dt; 
+      fputc(round(col[0] * 255), ppm); 
+      fputc(round(col[1] * 255), ppm); 
+      fputc(round(col[2] * 255), ppm); 
+      p_x += pixel_size;
+    }
+    p_y -= pixel_size;
+  } 
+  fclose(ppm);
+  free(spheres);
+  free(boxes);
+  fclose(scene);
+  return 0;
+}
