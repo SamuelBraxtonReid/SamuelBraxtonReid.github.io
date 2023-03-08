@@ -1,3 +1,7 @@
+THESE ARE OUTDATED. Most of this will not work. Will post updated version at some point.
+
+Original Outdated Instructions:
+
 The C code can be compiled in the usual way.
 Run the resultant executable with a text file as input like so: ./a.out input.txt
 Upon completion, the ray tracer will produce a file called "out.ppm" which will contain the output image.
