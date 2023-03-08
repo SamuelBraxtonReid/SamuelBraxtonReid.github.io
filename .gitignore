@@ -3,8 +3,10 @@
 !*.css
 !*.js
 !*.png
+!*.ico
 !main.c.txt
 !instructions.txt
 !resume.pdf
 !.nojekyll
 !.gitignore
+
